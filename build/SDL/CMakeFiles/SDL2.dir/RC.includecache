@@ -1,0 +1,12 @@
+#IncludeRegexLine: ^[ 	]*[#%][ 	]*(include|import)[ 	]*[<"]([^">]+)([">])
+
+#IncludeRegexScan: ^.*$
+
+#IncludeRegexComplain: ^$
+
+#IncludeRegexTransform: 
+
+C:/ZOSIA/Studia/project_132/tp_projekt_4/SDL/src/main/windows/version.rc
+winresrc.h
+C:/ZOSIA/Studia/project_132/tp_projekt_4/SDL/src/main/windows/winresrc.h
+

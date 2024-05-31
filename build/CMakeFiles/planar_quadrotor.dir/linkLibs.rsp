@@ -1,0 +1,1 @@
+ SDL/libSDL2maind.a SDL/libSDL2d.dll.a SDL2_gfx/libSDL2_gfx.a matplotplusplus/source/matplot/libmatplot.a -lshell32 -lgdi32 matplotplusplus/source/3rd_party/libnodesoup.a -lkernel32 -luser32 -lgdi32 -lwinspool -lshell32 -lole32 -loleaut32 -luuid -lcomdlg32 -ladvapi32 
