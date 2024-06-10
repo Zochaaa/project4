@@ -2,6 +2,7 @@
  * SDL window creation adapted from https://github.com/isJuhn/DoublePendulum
 */
 #include "simulate.h"
+#include "lqr.h"
 
 Eigen::MatrixXf LQR(PlanarQuadrotor &quadrotor, float dt) {
     /* Calculate LQR gain matrix */
@@ -53,12 +54,12 @@ int main(int argc, char* args[])
      * For implemented LQR controller, it has to be [x, y, 0, 0, 0, 0]
     */
     Eigen::VectorXf goal_state = Eigen::VectorXf::Zero(6);
-    goal_state << 0, 0, 0, 0, 0, 0;
+    //goal_state << 0, 0, 0, 0, 0, 0;
     quadrotor.SetGoal(goal_state);
     /* Timestep for the simulation */
     const float dt = 0.001;
     Eigen::MatrixXf K = LQR(quadrotor, dt);
-    Eigen::Vector2f input = Eigen::Vector2f::Zero(2);
+    //Eigen::Vector2f input = Eigen::Vector2f::Zero(2);
 
     /**
      * TODO: Plot x, y, theta over time
@@ -86,15 +87,19 @@ int main(int argc, char* args[])
                 {
                     quit = true;
                 }
-                else if (e.type == SDL_MOUSEMOTION)
+                else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
                 {
                     SDL_GetMouseState(&x, &y);
+                    float world_x = (x - SCREEN_WIDTH / 2) / 100.0; // Convert screen to world coordinates
+                    float world_y = (SCREEN_HEIGHT / 2 - y) / 100.0;
+                    goal_state << world_x, world_y, 0, 0, 0, 0;
+                    quadrotor.SetGoal(goal_state);//zmiany
                     std::cout << "Mouse position: (" << x << ", " << y << ")" << std::endl;
                 }
                 
             }
 
-            SDL_Delay((int) dt * 1000);
+            SDL_Delay((int)(dt * 1000));
 
             SDL_SetRenderDrawColor(gRenderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
             SDL_RenderClear(gRenderer.get());
@@ -107,6 +112,10 @@ int main(int argc, char* args[])
             /* Simulate quadrotor forward in time */
             control(quadrotor, K);
             quadrotor.Update(dt);
+            state = quadrotor.GetState();//zmiana
+            x_history.push_back(state[0]);
+            y_history.push_back(state[1]);
+            theta_history.push_back(state[2]);
         }
     }
     SDL_Quit();
