@@ -4,7 +4,6 @@
 Eigen::MatrixXf LQR(const Eigen::MatrixXf &A, const Eigen::MatrixXf &B, const Eigen::MatrixXf &Q, const Eigen::MatrixXf &R, double eps, u_int max_iter) {
     Eigen::MatrixXf A_T = A.transpose();
     Eigen::MatrixXf B_T = B.transpose();
-
     Eigen::MatrixXf P = Q;
     Eigen::MatrixXf P_old = P;
     Eigen::MatrixXf delta = Eigen::MatrixXf::Zero(P.rows(), P.cols());

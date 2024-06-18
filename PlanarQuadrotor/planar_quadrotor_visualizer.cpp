@@ -17,35 +17,34 @@ void PlanarQuadrotorVisualizer::render(std::shared_ptr<SDL_Renderer> &gRenderer)
     q_y = state[1];
     q_theta = state[2];
     
-    //SDL_SetRenderDrawColor(gRenderer.get(), 0xFF, 0x00, 0x00, 0x00);
-    //filledCircleColor(gRenderer.get(), q_x + 700, q_y + 300, 50, 0xE6E6FA00);
-
-    //SDL_RenderDrawLine(gRenderer.get(), q_x + 100, q_y + 100, q_x + 1000, q_y + 100);
-
-	//int x1 = 600, y1 = 350, x2 = 700, y2 = 280;
-	//Uint8 red = 255, green = 0, blue = 0, alpha = 255; // RGBA color components
-	//boxColor(gRenderer.get(), q_x + x1 + , q_y + y1, q_x + x2, q_y + y2, SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), red, green, blue, alpha));
-
-	int rect_width = 60;
+	int rect_width = 100;
 	int rect_height = 20;
 	int window_width = 1280, window_height = 720;
 
-
-	//int x = (window_width - rect_width) / 2;
-	//int y = (window_height - rect_height) / 2;
-
-	//boxColor(gRenderer.get(), x , y, x + rect_width, y + rect_height, SDL_MapRGBA(SDL_AllocFormat(SDL_PIXELFORMAT_RGBA8888), red, green, blue, alpha));
     int center_x = window_width / 2;
     int center_y = window_height / 2;
 
-    int screen_x = center_x + static_cast<int>(q_x * 100);
-    int screen_y = center_y - static_cast<int>(q_y * 100);
+    int screen_x = center_x + static_cast<int>(q_x * 256);
+    int screen_y = center_y - static_cast<int>(q_y * 256);
 
     SDL_Rect quad = { screen_x - rect_width / 2, screen_y - rect_height / 2, rect_width, rect_height };
-    //SDL_Point center = { rect_width / 2, rect_height / 2 };
+  
+     SDL_SetRenderDrawColor(gRenderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
+    SDL_Point center = { rect_width / 2, rect_height / 2 };
 
-    SDL_SetRenderDrawColor(gRenderer.get(), 0x00, 0x00, 0xFF, 0xFF);
     SDL_RenderFillRect(gRenderer.get(), &quad);
-
     SDL_RenderDrawRect(gRenderer.get(), &quad);
+
+    SDL_Texture* texture = SDL_CreateTexture(gRenderer.get(), SDL_PIXELFORMAT_RGBA8888, SDL_TEXTUREACCESS_TARGET, rect_width, rect_height);
+
+    SDL_SetRenderTarget(gRenderer.get(), texture);
+
+    SDL_SetRenderDrawColor(gRenderer.get(), 0x8A, 0x2B, 0xE2, 0xFF);
+    SDL_RenderClear(gRenderer.get());
+
+    SDL_SetRenderTarget(gRenderer.get(), nullptr);
+
+    SDL_RenderCopyEx(gRenderer.get(), texture, nullptr, &quad, q_theta * 180.0 / M_PI, &center, SDL_FLIP_NONE);
+
+    SDL_DestroyTexture(texture);
 }

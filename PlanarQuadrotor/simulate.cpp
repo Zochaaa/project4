@@ -3,8 +3,9 @@
 */
 #include "simulate.h"
 #include "lqr.h"
+#include "matplot/matplot.h"
 
-Eigen::MatrixXf LQR(PlanarQuadrotor &quadrotor, float dt) {
+Eigen::MatrixXf LQR(PlanarQuadrotor& quadrotor, float dt) {
     /* Calculate LQR gain matrix */
     Eigen::MatrixXf Eye = Eigen::MatrixXf::Identity(6, 6);
     Eigen::MatrixXf A = Eigen::MatrixXf::Zero(6, 6);
@@ -23,11 +24,11 @@ Eigen::MatrixXf LQR(PlanarQuadrotor &quadrotor, float dt) {
     std::tie(A, B) = quadrotor.Linearize();
     A_discrete = Eye + dt * A;
     B_discrete = dt * B;
-    
+
     return LQR(A_discrete, B_discrete, Q, R);
 }
 
-void control(PlanarQuadrotor &quadrotor, const Eigen::MatrixXf &K) {
+void control(PlanarQuadrotor& quadrotor, const Eigen::MatrixXf& K) {
     Eigen::Vector2f input = quadrotor.GravityCompInput();
     quadrotor.SetInput(input - K * quadrotor.GetControlState());
 }
@@ -54,12 +55,12 @@ int main(int argc, char* args[])
      * For implemented LQR controller, it has to be [x, y, 0, 0, 0, 0]
     */
     Eigen::VectorXf goal_state = Eigen::VectorXf::Zero(6);
-    //goal_state << 0, 0, 0, 0, 0, 0;
+    goal_state << 0, 0, 0, 0, 0, 0;
     quadrotor.SetGoal(goal_state);
     /* Timestep for the simulation */
     const float dt = 0.001;
     Eigen::MatrixXf K = LQR(quadrotor, dt);
-    //Eigen::Vector2f input = Eigen::Vector2f::Zero(2);
+    Eigen::Vector2f input = Eigen::Vector2f::Zero(2);
 
     /**
      * TODO: Plot x, y, theta over time
@@ -87,16 +88,25 @@ int main(int argc, char* args[])
                 {
                     quit = true;
                 }
-                else if (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
+                else if  (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
                 {
                     SDL_GetMouseState(&x, &y);
-                    float world_x = (x - SCREEN_WIDTH / 2) / 100.0; // Convert screen to world coordinates
-                    float world_y = (SCREEN_HEIGHT / 2 - y) / 100.0;
+                    float world_x = (static_cast<float>(x) - SCREEN_WIDTH / 2.0f) / 256.0f; // Convert screen to world coordinates
+                    float world_y = (SCREEN_HEIGHT / 2.0f - static_cast<float>(y)) / 256.0f;
                     goal_state << world_x, world_y, 0, 0, 0, 0;
                     quadrotor.SetGoal(goal_state);//zmiany
                     std::cout << "Mouse position: (" << x << ", " << y << ")" << std::endl;
                 }
-                
+                else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_p) {
+                    // Plot the trajectory
+                    matplot::figure();
+                    matplot::plot(x_history, y_history)->color({0.5f, 0.3f, 0.7f});
+                    matplot::xlabel("x");
+                    matplot::ylabel("y");
+                    matplot::title("Quadrotor Trajectory");
+                    matplot::show();
+                }
+
             }
 
             SDL_Delay((int)(dt * 1000));
