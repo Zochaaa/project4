@@ -6,7 +6,6 @@
 #include "matplot/matplot.h"
 
 Eigen::MatrixXf LQR(PlanarQuadrotor& quadrotor, float dt) {
-    /* Calculate LQR gain matrix */
     Eigen::MatrixXf Eye = Eigen::MatrixXf::Identity(6, 6);
     Eigen::MatrixXf A = Eigen::MatrixXf::Zero(6, 6);
     Eigen::MatrixXf A_discrete = Eigen::MatrixXf::Zero(6, 6);
@@ -81,7 +80,6 @@ int main(int argc, char* args[])
 
         while (!quit)
         {
-            //events
             while (SDL_PollEvent(&e) != 0)
             {
                 if (e.type == SDL_QUIT)
@@ -91,14 +89,13 @@ int main(int argc, char* args[])
                 else if  (e.type == SDL_MOUSEBUTTONDOWN && e.button.button == SDL_BUTTON_LEFT)
                 {
                     SDL_GetMouseState(&x, &y);
-                    float world_x = (static_cast<float>(x) - SCREEN_WIDTH / 2.0f) / 256.0f; // Convert screen to world coordinates
-                    float world_y = (SCREEN_HEIGHT / 2.0f - static_cast<float>(y)) / 256.0f;
+                    float world_x = (static_cast<float>(x) - SCREEN_WIDTH / 2.0f) / 500.0f; 
+                    float world_y = (SCREEN_HEIGHT / 2.0f - static_cast<float>(y)) / 500.0f;
                     goal_state << world_x, world_y, 0, 0, 0, 0;
-                    quadrotor.SetGoal(goal_state);//zmiany
+                    quadrotor.SetGoal(goal_state);
                     std::cout << "Mouse position: (" << x << ", " << y << ")" << std::endl;
                 }
                 else if (e.type == SDL_KEYDOWN && e.key.keysym.sym == SDLK_p) {
-                    // Plot the trajectory
                     matplot::figure();
                     matplot::plot(x_history, y_history)->color({0.5f, 0.3f, 0.7f});
                     matplot::xlabel("x");
@@ -114,15 +111,13 @@ int main(int argc, char* args[])
             SDL_SetRenderDrawColor(gRenderer.get(), 0xFF, 0xFF, 0xFF, 0xFF);
             SDL_RenderClear(gRenderer.get());
 
-            /* Quadrotor rendering step */
             quadrotor_visualizer.render(gRenderer);
 
             SDL_RenderPresent(gRenderer.get());
 
-            /* Simulate quadrotor forward in time */
             control(quadrotor, K);
             quadrotor.Update(dt);
-            state = quadrotor.GetState();//zmiana
+            state = quadrotor.GetState();
             x_history.push_back(state[0]);
             y_history.push_back(state[1]);
             theta_history.push_back(state[2]);
